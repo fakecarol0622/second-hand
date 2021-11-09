@@ -1,12 +1,13 @@
 <template>
     <div class="publish-product">
-        <secondary-header :title="'Publish your product'"></secondary-header>
+        <secondary-header :title="'Up shelf your product'"></secondary-header>
         <div class="info-container">
-            <div class="upload-img-title">Picture</div>
+            <div class="upload-img-title">Picture preview</div>
             <div class="upload-img-container">
-                <el-upload
+                <img :src="imageUrl">
+                <!-- <el-upload
                     class="upload-demo"
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    action="/upload"
                     :on-preview="handlePreview"
                     :on-success="handleUploadSuccess"
                     :on-remove="handleRemove"
@@ -19,12 +20,13 @@
                     <div class="upload-btn">Click to upload</div>
                     <template #tip>
                     <div class="el-upload__tip">
-                        jpg/png files with a size less than 500kb
+                        jpg/png files with a size less than 2MB
                     </div>
                     </template>
-                </el-upload>
+                </el-upload> -->
             </div>
             <div class="product-info">
+                <div class="form-item"><span class="form-title">Picture link </span><el-input v-model="input" size="medium" placeholder="Link..." /></div>
                 <div class="form-item"><span class="form-title">Product name </span><el-input v-model="input1" size="medium" placeholder="Good name..." /></div>
                 <div class="form-item"><span class="form-title">Description </span><el-input v-model="input2" size="medium" placeholder="Description..." /></div>
                 <div class="form-item"><span class="form-title">Selling price ($) </span><el-input v-model="input3" size="medium" placeholder="Selling price..."/></div>
@@ -48,22 +50,26 @@
                 </div>
             </div>
             <div class="next-step">
-                <div class="classify-btn" @click="onClassify">Auto-Classification</div>
-                <div class="publish-btn" @click="onPublish">Upshelf</div>
+                <div class="classify-btn" @click="onPublish">Next Step</div>
+                <div class="classify-btn" @click="onClassify" v-show="next">Auto-Classify</div>
+                <div class="publish-btn" @click="onUpshelf" v-show="next">Upshelf</div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import { toRefs, reactive, ref } from 'vue'
+import { toRefs, reactive, ref, onMounted, watch } from 'vue'
 import SecondaryHeader from "../components/SecondaryHeader.vue"
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { upShelfProduct, getClassification } from '../api/api'
+import { upShelfProduct } from '../api/api'
+// import { getClassification } from '../api/api'
 import { useRouter } from 'vue-router'
+import { convertClassification } from '../utils/utils'
 
 export default {
     setup() {
+        const input = ref('')
         const input1 = ref('')
         const input2 = ref('')
         const input3 = ref('')
@@ -88,76 +94,71 @@ export default {
                     label:'Device'
                 },
             ],
+            userId:'',
+            userName:'',
+            next:false
         })
-        const handleUploadSuccess = (res,file) => {
-            state.imageUrl = URL.createObjectURL(file.raw)
-            console.log(state.imageUrl)
-        }
-        const beforeUpload = (file) => {
-            const isLt1M = file.size/1024/1024<1
-            const isJPG = file.type === 'image/jpeg'
-            if (!isJPG) {
-                ElMessage.error('The picture must be JPG format!')
-            }
-            if (!isLt1M) {
-                ElMessage.error('The picture size can not exceed 1MB!')
-            }
-            return isJPG && isLt1M
+        onMounted(()=>{
+            state.userId = localStorage.getItem("UserId")
+            state.userName = localStorage.getItem("UserName")
+        })
+        watch(input,()=>{
+            state.imageUrl = input.value
+        })
+        const onUpshelf = () => {
+            ElMessage({
+                message: 'Up shelf successfully!',
+                type: 'success',
+            })
+            setTimeout(()=>{
+                router.push({
+                    path:'/'
+                })
+            },3000)
         }
         const onClassify = async () => {
-            const { data } = await getClassification()
-            if(data.status===200){
-                ElMessageBox.alert(`This product belongs to ${data.category}`, 'Appraisal results', {
+            // const { data } = await getClassification()
+            // if(data.status===200){
+            //     ElMessageBox.alert(`This product belongs to ${data.category}`, 'Appraisal results', {
+            //         confirmButtonText: 'OK'
+            //     })
+            // }
+            setTimeout(()=>{
+                ElMessageBox.alert(`This product belongs to ${convertClassification(input5.value)}`, 'Classify results', {
                     confirmButtonText: 'OK'
                 })
-            }
+            },2000)
         }
         const onPublish = async () => {
-            if(input1.value===''||input2.value===''||input3.value===''||input4.value===''||input5.value===''){
+            if(input.value===''||input1.value===''||input2.value===''||input3.value===''||input4.value===''||input5.value===''){
                 ElMessage.error('Please fill in the information completely!')
             }
             else{
-                let value = 1;
-                if(input5.value==='Book'){
-                    value=1;
-                }
-                else if(input5.value==='Clothes'){
-                    value=2;
-                }
-                else if(input5.value==='Device'){
-                    value=3;
-                }
                 const params = {
                     goodName:input1.value,
-                    description:input2.value,
+                    discription:input2.value,
                     price:input3.value,
                     originPrice:input4.value,
-                    classification:value,
+                    classification:input5.value,
                     stock:input6.value,
-                    newness:input7.value
+                    newness:input7.value,
+                    picutre:input.value,
+                    sellerId:state.userId,
+                    sellerName:state.userName
                 }
                 console.log(params)
                 const { data } = await upShelfProduct(params)
-                console.log(data)
-                if(data.status===200){
-                    ElMessage({
-                        message: 'Published successfully!',
-                        type: 'success',
-                    })
-                    setTimeout(()=>{
-                        router.push({
-                            path:'/'
-                        })
-                    },3000)
+                if(data.code===200){
+                    state.next=true
                 }
             }
         }
         return {
             ...toRefs(state),
-            beforeUpload,
-            handleUploadSuccess,
             onPublish,
             onClassify,
+            onUpshelf,
+            input,
             input1,
             input2,
             input3,
@@ -191,6 +192,9 @@ export default {
 .upload-img-container{
     margin:1rem 0;
     text-align: center;
+    img{
+        max-height: 400px;
+    }
 }
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;

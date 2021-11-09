@@ -2,24 +2,24 @@
     <div class="order-detail">
         <secondary-header :title="'Product detail'"></secondary-header>
         <div class="info-container">
-            <div class="info-img"><img src="../../public/mac.jpg"></div>
+            <div class="info-img"><img :src="product.picutre"></div>
             <el-descriptions
                 class="margin-top"
                 :column="3"
                 border
             >
                 <template #extra>
-                    <el-button @click="onBuy(product.goodId)" v-show="!isOwner&&product.status===1" type="primary">Buy</el-button>
+                    <el-button @click="onBuy(product.goodId)" v-show="!isOwner" type="primary">Buy</el-button>
                 </template>
                 <el-descriptions-item label="Product ID">{{ product.goodId }}</el-descriptions-item>
                 <el-descriptions-item label="Product Name">{{ product.goodName }}</el-descriptions-item>
                 <el-descriptions-item label="Newness(%)">{{ product.newness }}</el-descriptions-item>
                 <el-descriptions-item label="Price($)">{{ product.price }}</el-descriptions-item>
                 <el-descriptions-item label="Origin price($)">{{ product.originPrice }}</el-descriptions-item>
-                <el-descriptions-item label="Category">{{ product.classification }}</el-descriptions-item>
-                <el-descriptions-item label="Stick">{{ product.stock }}</el-descriptions-item>
+                <el-descriptions-item label="Category">{{ convertClassification(product.classification) }}</el-descriptions-item>
+                <el-descriptions-item label="Stock">{{ product.stock }}</el-descriptions-item>
                 <el-descriptions-item label="Status"><el-tag>{{ convertProductStatus(product.status) }}</el-tag></el-descriptions-item>
-                <el-descriptions-item label="Description">{{ product.description }}</el-descriptions-item>
+                <el-descriptions-item label="Description">{{ product.discription }}</el-descriptions-item>
             </el-descriptions>
         </div>
     </div>
@@ -32,7 +32,7 @@ import SecondaryHeader from '../components/SecondaryHeader.vue'
 import { createNewOrder, getProductDetail } from '../api/api'
 import { ElMessage } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
-import { convertProductStatus } from '../utils/utils'
+import { convertProductStatus, convertClassification } from '../utils/utils'
 
 export default {
     setup() {
@@ -40,24 +40,22 @@ export default {
         const route = useRoute()
         const state = reactive({
             product:{},
-            isOwner:false,
             userId:'',
-            productId:''
+            productId:'',
+            isOwner:false
         })
         onMounted(()=>{
             state.productId = route.params.productId
             getProduct(state.productId)
-            state.userId = localStorage.getItem("userId")
-            if(state.userId===state.product.userId){
+            state.userId = localStorage.getItem("UserId")
+            if(localStorage.getItem("UserId")===state.product.sellerId){
                 state.isOwner=true
-            }
-            else{
-                state.isOwner=false
             }
         })
         const onBuy = async (id) => {
-            const res = await createNewOrder(state.userId,id)
-            if(res.status===200){
+            const { data } = await createNewOrder(state.userId,id)
+            console.log("buy:",data)
+            if(data.code===200){
                 ElMessage({
                     message: 'Buy successfully!',
                     type: 'success',
@@ -66,10 +64,17 @@ export default {
                     router.go(-1)
                 },3000)
             }
+            else{
+                ElMessage({
+                    message: 'Failed to buy this product!',
+                    type: 'success',
+                })
+            }
         }
         const getProduct = async (productId) => {
             const { data } = await getProductDetail(productId)
-            state.product = data; 
+            console.log("product:",data)
+            state.product = data.message; 
         }
         const convertStatus = (value) => {
             if(value===0){
@@ -89,7 +94,8 @@ export default {
             ...toRefs(state),
             convertStatus,
             onBuy,
-            convertProductStatus
+            convertProductStatus,
+            convertClassification,
         }
     },
     components: {
@@ -113,6 +119,7 @@ export default {
     }
     .info-img img{
         max-width:600px;
+        max-height: 400px;
     }
     .info-item{
         margin-left:2rem;

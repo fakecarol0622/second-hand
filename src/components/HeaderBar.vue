@@ -14,6 +14,7 @@
             <div class="sell-btn" @click="onSell">I WANT TO SELL</div>
         </div>
         <div class="header-name" v-show="isAdmin">Hello, Administrator!</div>
+        <div class="header-name" v-show="isStudent">Hello, {{ userName }} !</div>
         <div class="header-right">
             <div class="user-box">
                   <el-dropdown @command="handleCommand">
@@ -48,23 +49,45 @@ export default {
             circleUrl:'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
             hasLogin:localStorage.getItem("Flag"),
             isAdmin:false,
+            isStudent:true,
+            userName:''
         })
         onMounted(()=>{
-            if(localStorage.getItem("Role"===1)){
+            if(localStorage.getItem("Role")==1){
                 state.isAdmin=true
+                state.isStudent=false
+            }
+            else if(localStorage.getItem("Role")==0){
+                state.userName = localStorage.getItem("UserName")
+                state.isAdmin=false
+                state.isStudent=true
             }
             else{
                 state.isAdmin=false
+                state.isStudent=false
             }
             if(localStorage.getItem("Flag")==="hasLogin"){
                 state.hasLogin=true
             }
         })
         const onSubmit = (value) => {
+            let input = 1;
+            if(value==='book'){
+                input = 1
+            }
+            else if(value==='clothes'){
+                input = 2
+            }
+            else if(value==='device'){
+                input = 3
+            }
+            else {
+                input = 4
+            }
             router.push({
                 name: "productlist",
                 params:{
-                    category:value
+                    category:input
                 }
             })
         }
@@ -165,6 +188,9 @@ export default {
             height: 2rem;
             margin-top:15px;
         }
+    }
+    .header-name{
+        font-size: 1.2rem;
     }
     .header-nav{
         flex:1;

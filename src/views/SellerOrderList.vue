@@ -23,7 +23,7 @@ export default {
         })
         const getOrders = async () => {
             const { data } = await getSellerOrders(state.userId)
-            state.items = data
+            state.items = data.message
         }
         return {
             ...toRefs(state),

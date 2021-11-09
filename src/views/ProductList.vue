@@ -23,13 +23,28 @@ export default {
         })
         onMounted(()=>{
             state.category = route.params.category
-            state.title = 'Products in '+state.category+' category'
+            console.log("category:",state.category)
+            state.title = convertCategory(state.category)
             getProducts(state.category)
         })
+        const convertCategory = (category) => {
+            if(category==1){
+                return 'Products in book category'
+            }
+            else if(category==2){
+                return 'Products in clothes category'
+            }
+            else if(category==3){
+                return 'Products in device category'
+            }
+            else{
+                return 'No product found'
+            }
+        }
         const getProducts = async (category) => {
             const { data } = await getTagProducts(category)
             window.console.log(data)
-            state.products = data
+            state.products = data.message
         }
         return {
             ...toRefs(state)

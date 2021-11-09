@@ -82,19 +82,19 @@ export default {
         const input3 = ref(state.order.orderCondition)
         const options = [
             {
-                value:0,
+                value:1,
                 label:'Created'
             },
             {
-                value:1,
+                value:2,
                 label:'Sent'
             },
             {
-                value:2,
+                value:3,
                 label:'Received'
             },
             {
-                value:3,
+                value:4,
                 label:'Canceled'
             },
         ]
@@ -105,10 +105,10 @@ export default {
                     type: 'warning',
                 })
             }
-            const res = await getAccountByName(input1.value)
-            console.log(res)
-            if(res.status===200){
-                state.user = res.data
+            const { data } = await getAccountByName(input1.value)
+            console.log("search:",data)
+            if(data.code===200){
+                state.user = data.message
                 state.showAccount = true
             }
             else{
@@ -125,9 +125,9 @@ export default {
                     type: 'warning',
                 })
             }
-            const res = await getOrderById(input2.value)
-            if(res.status===200){
-                state.order = res.data
+            const { data } = await getOrderById(input2.value)
+            if(data.code===200){
+                state.order = data.message
                 state.showOrder = true
             }
             else{
@@ -138,8 +138,8 @@ export default {
             }
         }
         const onBlock = async () => {
-            const res = await blockAccount(state.user.userId)
-            if(res.status===200){
+            const { data } = await blockAccount(state.user.userId)
+            if(data.code===200){
                 ElMessage({
                     message: 'Blocked this account successfully!',
                     type: 'success',
@@ -154,8 +154,8 @@ export default {
             }
         }
         const onUnblock = async () => {
-            const res = await unblockAccount(state.user.userId)
-            if(res.status===200){
+            const { data } = await unblockAccount(state.user.userId)
+            if(data.code===200){
                 ElMessage({
                     message: 'Unblocked this account successfully!',
                     type: 'success',
@@ -170,8 +170,8 @@ export default {
             }
         }
         const onChangeStatus = async () => {
-            const res = await changeOrderStatus(state.order.orderId,input3.value)
-            if(res.status===200){
+            const { data } = await changeOrderStatus(state.order.orderId,input3.value)
+            if(data.code===200){
                 ElMessage({
                     message: 'Order status changed successfully!',
                     type: 'success',
@@ -200,8 +200,6 @@ export default {
             options
         }
     },
-    components: {
-    }
 }
 </script>
 

@@ -2,15 +2,15 @@
   <div class="home">
     <el-divider class="divider"><span class="divider-title">Browse by category</span></el-divider>
     <div class="category">
-      <div class="category-item" @click="onSelect('books')">
+      <div class="category-item" @click="onSelect(1)">
         <div class="img-box"><img class="category-img" src="../../public/books.png"></div>
         <div class="category-title">Books</div>
       </div>
-      <div m class="category-item" @click="onSelect('devices')">
+      <div m class="category-item" @click="onSelect(3)">
         <div class="img-box"><img class="category-img" src="../../public/phone.png"></div>
         <div class="category-title">Devices</div>
       </div>
-      <div class="category-item" @click="onSelect('clothes')">
+      <div class="category-item" @click="onSelect(2)">
         <div class="img-box"><img class="category-img" src="../../public/clothes.png"></div>
         <div class="category-title">Clothes</div>
       </div>
@@ -42,8 +42,8 @@ export default {
     })
     const getProducts = async () => {
       const { data } = await getAllProducts()
-      window.console.log(data)
-      state.products = data
+      console.log("data",data)
+      state.products = data.message
     }
     const onSelect = (category) => {
       router.push({

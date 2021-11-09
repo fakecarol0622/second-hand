@@ -22,7 +22,7 @@ Mock.mock('/user/register','post', (params)=>{
 })
 
 // Simulate the interface for register
-Mock.mock('/v2/seller/upShelf','post', (params)=>{
+Mock.mock('/seller/upShelf','post', (params)=>{
     console.log(params)
     return Mock.mock({
         status:200
@@ -205,6 +205,13 @@ Mock.mock('/v2/register','post', (param) => {
 
 // Simulate the interface for modifying the account information
 Mock.mock('/user/editStudent','post', (param) => {
+    console.log(param)
+    return Mock.mock({
+        status:200
+    })
+})
+
+Mock.mock('/upload','post', (param) => {
     console.log(param)
     return Mock.mock({
         status:200

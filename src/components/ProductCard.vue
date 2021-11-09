@@ -2,7 +2,7 @@
     <div id="product-card">
         <div class="card-container">
             <div class="card-item" v-for="(product,index) in products" :key="index" @click="onSelect(product.goodId)">
-                <div class="card-img"><img class="img" src="../../public/mac.jpg"></div>
+                <div class="card-img"><img class="img" :src="product.picutre"></div>
                 <div class="card-title"><span class="title-text">{{ product.goodName }}</span></div>
                 <div class="card-origin-price"><span>$</span><span class="origin-price-value">{{ product.originPrice }}</span></div>
                 <div class="card-price">${{ product.price }}</div>
@@ -52,7 +52,8 @@ export default {
         margin:0.5rem 0.5rem 0 0.5rem;
         vertical-align: middle;
         .img{
-            max-width:100%;
+            width:250px;
+            height:200px;
             border-radius: 0.5rem;
         }
     }

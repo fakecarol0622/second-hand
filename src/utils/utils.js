@@ -18,16 +18,16 @@
   }
 
   export function convertOrderStatus(value) {
-    if(value===0){
+    if(value===1){
         return 'Created'
     }
-    else if(value===1) {
+    else if(value===2) {
         return 'Sent'
     }
-    else if(value===2) {
+    else if(value===3) {
         return 'Received'
     }
-    else if(value===3) {
+    else if(value===4) {
         return 'Canceled'
     }
   }
@@ -51,4 +51,16 @@
     else if(value===3) {
         return 'No stock'
     }
+  }
+
+  export function convertClassification(value) {
+      if(value===1){
+          return 'book'
+      }
+      else if(value===2){
+          return 'clothes'
+      }
+      else{
+          return 'device'
+      }
   }

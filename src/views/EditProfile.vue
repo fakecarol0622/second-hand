@@ -23,8 +23,8 @@
 import { toRefs, reactive, ref, onMounted } from 'vue'
 import SecondaryHeader from "../components/SecondaryHeader.vue"
 import { ElMessage } from 'element-plus'
-import { getAccountByName, editAccountInfo } from '../api/api'
-import { useRouter, useRoute } from 'vue-router'
+import { getAccountById, editAccountInfo } from '../api/api'
+import { useRouter } from 'vue-router'
 import { convertAccountStatus } from '../utils/utils'
 
 export default {
@@ -34,19 +34,18 @@ export default {
         const input3 = ref('')
         const input4 = ref('')
         const router = useRouter()
-        const route = useRoute()
         const state = reactive({
-            userName:'',
+            userId:'',
             user:{}
         })
         onMounted(()=>{
-            state.userName = route.params.userName
+            state.userId = localStorage.getItem("UserId")
             getUser()
         })
         const getUser = async () => {
-            const { data } = await getAccountByName(state.userName)
+            const { data } = await getAccountById(state.userId)
             console.log(data)
-            state.user = data
+            state.user = data.message
             input1.value = state.user.userName
             input2.value = state.user.password
             input3.value = state.user.phone
@@ -61,8 +60,8 @@ export default {
                 phone:input3.value,
                 address:input4.value
             }
-            const res = await editAccountInfo(params)
-            if(res.status===200){
+            const { data } = await editAccountInfo(params)
+            if(data.code===200){
                 ElMessage({
                     message: 'Submitted successfully!',
                     type: 'success',

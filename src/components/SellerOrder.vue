@@ -7,7 +7,7 @@
             v-for="(item,index) in items" :key="index"
         >
             <template #extra>
-                <el-button type="primary" @click="onSend(item.orderId)" v-show="item.orderCondition===0">Send</el-button>
+                <el-button type="primary" @click="onSend(item.orderId)" v-show="item.orderCondition===1">Send</el-button>
             </template>
             <el-descriptions-item label="Order ID">{{ item.orderId }}</el-descriptions-item>
             <el-descriptions-item label="Seller ID">{{ item.sellerId }}</el-descriptions-item>
@@ -35,8 +35,8 @@ export default {
     },
     setup() {
         const onSend = async (orderId) => {
-            const res = await sendProduct(orderId)
-            if(res.status===200){
+            const { data } = await sendProduct(orderId)
+            if(data.code===200){
                 ElMessage({
                     message: 'Send successfully!',
                     type: 'success',

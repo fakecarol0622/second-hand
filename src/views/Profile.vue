@@ -25,7 +25,7 @@
 
 <script>
 import SecondaryHeader from '../components/SecondaryHeader.vue'
-import { getAccountByName } from '../api/api'
+import { getAccountById } from '../api/api'
 import { onMounted, reactive, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -49,9 +49,9 @@ export default {
         const getUser = async () => {
             const id = localStorage.getItem("UserId")
             console.log(id)
-            const { data } = await getAccountByName(id)
+            const { data } = await getAccountById(id)
             console.log(data)
-            state.user = data
+            state.user = data.message
         }
         const onEdit = async () => {
             router.push({

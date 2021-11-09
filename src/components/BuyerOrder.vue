@@ -7,8 +7,8 @@
             v-for="(item,index) in items" :key="index"
         >
             <template #extra>
-                <el-button type="primary" @click="onReceive(item.orderId)" v-show="item.orderCondition===1">Receive</el-button>
-                <el-button type="primary" @click="onCancel(item.orderId)" v-show="item.orderCondition===0||item.orderCondition===1">Cancel</el-button>
+                <el-button type="primary" @click="onReceive(item.orderId)" v-show="item.orderCondition===2">Receive</el-button>
+                <el-button type="primary" @click="onCancel(item.orderId)" v-show="item.orderCondition===1||item.orderCondition===2">Cancel</el-button>
             </template>
             <el-descriptions-item label="Order ID">{{ item.orderId }}</el-descriptions-item>
             <el-descriptions-item label="Seller ID">{{ item.sellerId }}</el-descriptions-item>

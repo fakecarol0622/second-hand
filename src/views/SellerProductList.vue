@@ -23,7 +23,7 @@ export default {
         })
         const getProducts = async () => {
             const { data } = await getMyProducts(state.userId)
-            state.items = data
+            state.items = data.message
         }
         return {
             ...toRefs(state),

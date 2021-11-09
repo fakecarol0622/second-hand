@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { login, register } from "../api/api"
+import { login, register, getAccountById } from "../api/api"
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
@@ -55,16 +55,19 @@ export default {
                     password:input2.value,
                     role:radio.value
                 }
-                const data = await login(params) 
+                const { data } = await login(params) 
                 console.log(data)
-                if(data.status===200){
+                if(data.code===200){
                     ElMessage({
                         message: 'Login successfully!',
                         type: 'success',
                     })
-                    store.commit('userLogin',true)
+                    const { data } = await getAccountById(params.id)
+                    console.log("res:",data)
+                    store.commit('userStatus',true)
                     localStorage.setItem("UserId",input1.value)
                     localStorage.setItem("Role",radio.value)
+                    localStorage.setItem("UserName",data.message.userName)
                     console.log("Role:"+localStorage.getItem("Role"))
                     localStorage.setItem("Flag","hasLogin")
                     if(radio.value===1){
@@ -82,7 +85,7 @@ export default {
                         },3000)
                     }
                 }
-                else if(data.status===400){
+                else if(data.code===400){
                     ElMessage.error('Id or password error!')
                 }
                 else{
@@ -91,6 +94,7 @@ export default {
             }
         }
         const onRegister = async () => {
+            console.log("input:",input3.value,input4.value,input5.value,input6.value)
             if(input3.value===''||input4.value===''||input5.value===''||input6.value===''){
                 ElMessage({
                     message: 'Please fill in the information completely!',
@@ -104,9 +108,9 @@ export default {
                     phone:input5.value,
                     address:input6.value
                 }
-                const data = await register(params)
+                const { data } = await register(params)
                 console.log(data)
-                if(data.status===200){
+                if(data.code===200){
                     ElMessage({
                         message: 'Register successfully!',
                         type: 'success',
@@ -117,8 +121,11 @@ export default {
                         })
                     },3000)
                 }
-                else if(data.status===400){
+                else if(data.code===400){
                     ElMessage.error('Please fill in the information completely!')
+                }
+                else if(data.code===401){
+                    ElMessage.error('User already exist!')
                 }
                 else{
                     ElMessage.error('Register failed!')

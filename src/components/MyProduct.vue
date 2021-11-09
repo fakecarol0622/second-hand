@@ -15,16 +15,16 @@
             <el-descriptions-item label="Newness(%)">{{ item.newness }}</el-descriptions-item>
             <el-descriptions-item label="Price($)">{{ item.price }}</el-descriptions-item>
             <el-descriptions-item label="Origin price($)">{{ item.originPrice }}</el-descriptions-item>
-            <el-descriptions-item label="Category">{{ item.classification }}</el-descriptions-item>
+            <el-descriptions-item label="Category">{{ convertClassification(item.classification) }}</el-descriptions-item>
             <el-descriptions-item label="Stick">{{ item.stock }}</el-descriptions-item>
             <el-descriptions-item label="Status"><el-tag>{{ convertProductStatus(item.status) }}</el-tag></el-descriptions-item>
-            <el-descriptions-item label="Description">{{ item.description }}</el-descriptions-item>
+            <el-descriptions-item label="Description">{{ item.discription }}</el-descriptions-item>
         </el-descriptions>
     </div>
 </template>
 
 <script>
-import { convertProductStatus } from '../utils/utils'
+import { convertProductStatus, convertClassification } from '../utils/utils'
 import { useRouter } from 'vue-router'
 import { offShelfProduct } from '../api/api'
 import { ElMessage } from 'element-plus'
@@ -44,18 +44,19 @@ export default {
                 params:{
                     goodId:props.items[index].goodId,
                     goodName:props.items[index].goodName,
-                    description:props.items[index].description,
+                    description:props.items[index].discription,
                     price:props.items[index].price,
                     originPrice:props.items[index].originPrice,
                     classification:props.items[index].classification,
                     stock:props.items[index].stock,
-                    newness:props.items[index].newness
+                    newness:props.items[index].newness,
+                    picture:props.items[index].picutre
                 }
             })
         }
         const onOffShelf = async (goodId) => {
-            const res = await offShelfProduct(goodId)
-            if(res.status===200){
+            const { data } = await offShelfProduct(goodId)
+            if(data.code===200){
                 ElMessage({
                     message: 'Off shelf successfully!',
                     type: 'success',
@@ -64,6 +65,7 @@ export default {
         }
         return {
             convertProductStatus,
+            convertClassification,
             onEdit,
             onOffShelf,
         }

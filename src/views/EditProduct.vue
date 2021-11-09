@@ -2,29 +2,12 @@
     <div class="publish-product">
         <secondary-header :title="'Edit your product'"></secondary-header>
         <div class="info-container">
-            <div class="upload-img-title">Picture of your product</div>
+            <div class="upload-img-title">Picture</div>
             <div class="upload-img-container">
-                <el-upload
-                    class="upload-demo"
-                    action="https://jsonplaceholder.typicode.com/posts/"
-                    :on-preview="handlePreview"
-                    :on-success="handleUploadSuccess"
-                    :on-remove="handleRemove"
-                    :before-upload="beforeUpload"
-                    :limit="1"
-                    :file-list="fileList"
-                    list-type="picture"
-                    auto-upload
-                >
-                    <div class="upload-btn">Click to upload</div>
-                    <template #tip>
-                    <div class="el-upload__tip">
-                        jpg/png files with a size less than 500kb
-                    </div>
-                    </template>
-                </el-upload>
+                <img :src="imageUrl">
             </div>
             <div class="product-info">
+                <div class="form-item"><span class="form-title">Picture link </span><el-input v-model="input">{{ item.picutre }}</el-input></div>
                 <div class="form-item"><span class="form-title">Product ID </span><el-tag>{{ item.goodId }}</el-tag></div>
                 <div class="form-item"><span class="form-title">Product name </span><el-input v-model="input1" size="medium" placeholder="Good name..." /></div>
                 <div class="form-item"><span class="form-title">Description </span><el-input v-model="input2" size="medium" placeholder="Description..." /></div>
@@ -49,7 +32,6 @@
                 </div>
             </div>
             <div class="next-step">
-                <div class="classify-btn" @click="onClassify(item.goodId)">Auto-Classification</div>
                 <div class="submit-btn" @click="onSubmit">Submit</div>
             </div>
         </div>
@@ -57,24 +39,26 @@
 </template>
 
 <script>
-import { toRefs, reactive, ref, onMounted } from 'vue'
+import { toRefs, reactive, ref, onMounted, watch } from 'vue'
 import SecondaryHeader from "../components/SecondaryHeader.vue"
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { editProduct, getClassification } from '../api/api'
+import { ElMessage } from 'element-plus'
+import { editProduct } from '../api/api'
 import { useRouter, useRoute } from 'vue-router'
 
 export default {
     setup() {
+        const input = ref('')
         const input1 = ref('')
         const input2 = ref('')
         const input3 = ref('')
         const input4 = ref('')
-        const input5 = ref(1)
+        const input5 = ref(0)
         const input6 = ref(1)
         const input7 = ref(100)
         const router = useRouter()
         const route = useRoute()
         onMounted(()=>{
+            state.item.picture = route.params.picture
             state.item.goodId = route.params.goodId
             state.item.goodName = route.params.goodName
             state.item.description = route.params.description
@@ -83,7 +67,12 @@ export default {
             state.item.classification = route.params.classification
             state.item.stock = route.params.stock
             state.item.newness = route.params.newness
+            state.userId = localStorage.getItem("UserId")
+            state.userName = localStorage.getItem("UserName")
             initialValue()
+        })
+        watch(input,()=>{
+            state.imageUrl = input.value
         })
         const state = reactive({
             imageUrl:'',
@@ -102,8 +91,11 @@ export default {
                 },
             ],
             item:{},
+            userId:'',
+            userName:''
         })
         const initialValue = () => {
+            input.value = state.item.picture
             input1.value = state.item.goodName
             input2.value = state.item.description
             input3.value = state.item.price
@@ -112,48 +104,27 @@ export default {
             input6.value = state.item.stock
             input7.value = state.item.newness
         }
-        const handleUploadSuccess = (res,file) => {
-            state.imageUrl = URL.createObjectURL(file.raw)
-            console.log(state.imageUrl)
-        }
-        const beforeUpload = (file) => {
-            const isLt1M = file.size/1024/1024<1
-            const isJPG = file.type === 'image/jpeg'
-            if (!isJPG) {
-                ElMessage.error('The picture must be JPG format!')
-            }
-            if (!isLt1M) {
-                ElMessage.error('The picture size can not exceed 1MB!')
-            }
-            return isJPG && isLt1M
-        }
-        const onClassify = async (goodId) => {
-            const { data } = await getClassification(goodId)
-            if(data.status===200){
-                ElMessageBox.alert(`This product belongs to ${data.category}`, 'Appraisal results', {
-                    confirmButtonText: 'OK'
-                })
-            }
-        }
         const onSubmit = async () => {
-            if(input1.value===''||input2.value===''||input3.value===''||input4.value===''){
+            if(input.value===''||input1.value===''||input2.value===''||input3.value===''||input4.value===''){
                 ElMessage.error('Please fill in the information completely!')
             }
             else{
                 const params = {
                     goodId:state.item.goodId,
+                    picutre:input.value,
                     goodName:input1.value,
-                    description:input2.value,
+                    discription:input2.value,
                     price:input3.value,
                     originPrice:input4.value,
                     classification:input5.value,
                     stock:input6.value,
-                    newness:input7.value
+                    newness:input7.value,
+                    sellerId:state.userId,
+                    sellerName:state.userName
                 }
-                console.log("send:"+params)
+                console.log("send:",params)
                 const { data } = await editProduct(params)
-                console.log(data)
-                if(data.status===200){
+                if(data.code===200){
                     ElMessage({
                         message: 'Submitted successfully!',
                         type: 'success',
@@ -166,10 +137,8 @@ export default {
         }
         return {
             ...toRefs(state),
-            beforeUpload,
-            handleUploadSuccess,
             onSubmit,
-            onClassify,
+            input,
             input1,
             input2,
             input3,
@@ -203,6 +172,9 @@ export default {
 .upload-img-container{
     margin:1rem 0;
     text-align: center;
+    img{
+        max-height: 400px;
+    }
 }
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
