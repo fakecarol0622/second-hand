@@ -240,11 +240,12 @@ Mock.mock('/buyer/receiveOrder','post', (orderId) => {
 })
 
 // Simulate the interface for returning the estimated product price, status and category
-Mock.mock('/seller/distinguish','post', () => {
+Mock.mock('http://localhost:8081/seller/distinguish','post', () => {
     return Mock.mock({
-        'category':'@word',
-        'newness|30-100':1,
-        'price|1-10000':1,
+        'category':3,
+        'newness|80-90':1,
+        'price|800-900':1,
+        'originPrice|1000-1100':1,
         status:200
     })
 })

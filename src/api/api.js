@@ -99,13 +99,7 @@ export const offShelfProduct = (id) => axios.post(`${baseUrl}/seller/offShelf`,
     }
 })
 
-export const getClassification = (id) => axios.post(`${baseUrl}/seller/distinguish`,
-{},
-{
-    params:{
-        goodId:id
-    }
-})
+export const getEvaluateResult = (url) => axios.post(`http://localhost:8081/seller/distinguish`,url)
 
 export const sendProduct = (id) => axios.post(`${baseUrl}/seller/sendGood`,
 {},

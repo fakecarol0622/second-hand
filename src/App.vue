@@ -9,7 +9,6 @@
 </template>
 
 <script>
-import { reactive, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import HeaderBar from './components/HeaderBar.vue'
 import { useStore } from 'vuex'
@@ -19,9 +18,6 @@ export default {
   setup() {
       const store = useStore()
       const router = useRouter()
-      const state = reactive({
-        transitionName: ''
-      })
       router.beforeEach((to, from, next) => {
         let getFlag = localStorage.getItem("Flag")
         if(getFlag==="hasLogin"){
@@ -45,7 +41,6 @@ export default {
       })
 
       return {
-        ...toRefs(state)
       }
   },
   components: {

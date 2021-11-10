@@ -1,34 +1,15 @@
 <template>
     <div class="publish-product">
-        <secondary-header :title="'Up shelf your product'"></secondary-header>
+        <secondary-header :title="'Sell your product'"></secondary-header>
         <div class="info-container">
             <div class="upload-img-title">Picture preview</div>
             <div class="upload-img-container">
                 <img :src="imageUrl">
-                <!-- <el-upload
-                    class="upload-demo"
-                    action="/upload"
-                    :on-preview="handlePreview"
-                    :on-success="handleUploadSuccess"
-                    :on-remove="handleRemove"
-                    :before-upload="beforeUpload"
-                    :limit="1"
-                    :file-list="fileList"
-                    list-type="picture"
-                    auto-upload
-                >
-                    <div class="upload-btn">Click to upload</div>
-                    <template #tip>
-                    <div class="el-upload__tip">
-                        jpg/png files with a size less than 2MB
-                    </div>
-                    </template>
-                </el-upload> -->
             </div>
             <div class="product-info">
                 <div class="form-item"><span class="form-title">Picture link </span><el-input v-model="input" size="medium" placeholder="Link..." /></div>
-                <div class="form-item"><span class="form-title">Product name </span><el-input v-model="input1" size="medium" placeholder="Good name..." /></div>
-                <div class="form-item"><span class="form-title">Description </span><el-input v-model="input2" size="medium" placeholder="Description..." /></div>
+                <div class="form-item"><span class="form-title">Product name </span><el-input v-model="input1" size="medium" placeholder="Good name..." maxlength="20"/></div>
+                <div class="form-item"><span class="form-title">Description </span><el-input v-model="input2" size="medium" placeholder="Description..."  maxlength="300"/></div>
                 <div class="form-item"><span class="form-title">Selling price ($) </span><el-input v-model="input3" size="medium" placeholder="Selling price..."/></div>
                 <div class="form-item"><span class="form-title">Origin price ($) </span><el-input v-model="input4" size="medium" placeholder="Origin price..." /></div>
                 <div class="form-item"><span class="form-title">Category </span>
@@ -50,9 +31,7 @@
                 </div>
             </div>
             <div class="next-step">
-                <div class="classify-btn" @click="onPublish">Next Step</div>
-                <div class="classify-btn" @click="onClassify" v-show="next">Auto-Classify</div>
-                <div class="publish-btn" @click="onUpshelf" v-show="next">Upshelf</div>
+                <div class="publish-btn" @click="onPublish">Sell it now!</div>
             </div>
         </div>
     </div>
@@ -61,9 +40,9 @@
 <script>
 import { toRefs, reactive, ref, onMounted, watch } from 'vue'
 import SecondaryHeader from "../components/SecondaryHeader.vue"
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { upShelfProduct } from '../api/api'
-// import { getClassification } from '../api/api'
+import { getEvaluateResult } from '../api/api'
 import { useRouter } from 'vue-router'
 import { convertClassification } from '../utils/utils'
 
@@ -82,21 +61,20 @@ export default {
             imageUrl:'',
             options: [
                 {
-                    value:1,
-                    label:'Book'
+                    value:'book',
+                    label:'book'
                 },
                 {
-                    value:2,
-                    label:'Clothes'
+                    value:'clothes',
+                    label:'clothes'
                 },
                 {
-                    value:3,
-                    label:'Device'
+                    value:'device',
+                    label:'device'
                 },
             ],
             userId:'',
             userName:'',
-            next:false
         })
         onMounted(()=>{
             state.userId = localStorage.getItem("UserId")
@@ -104,42 +82,41 @@ export default {
         })
         watch(input,()=>{
             state.imageUrl = input.value
+            onEvaluate(state.imageUrl)
         })
-        const onUpshelf = () => {
-            ElMessage({
-                message: 'Up shelf successfully!',
-                type: 'success',
-            })
-            setTimeout(()=>{
-                router.push({
-                    path:'/'
-                })
-            },3000)
-        }
-        const onClassify = async () => {
-            // const { data } = await getClassification()
-            // if(data.status===200){
-            //     ElMessageBox.alert(`This product belongs to ${data.category}`, 'Appraisal results', {
-            //         confirmButtonText: 'OK'
-            //     })
-            // }
-            setTimeout(()=>{
-                ElMessageBox.alert(`This product belongs to ${convertClassification(input5.value)}`, 'Classify results', {
-                    confirmButtonText: 'OK'
-                })
-            },2000)
+        const onEvaluate = async (url) => {
+            const { data } = await getEvaluateResult(url)
+            if(data.status===200){
+                setTimeout(()=>{
+                    input3.value = data.price
+                    input4.value = data.originPrice
+                    input5.value = convertClassification(data.category)
+                    input7.value = data.newness
+                    ElMessage.success('We have evaluated your product and filled in the information for you!')
+                },3000)
+            }
         }
         const onPublish = async () => {
             if(input.value===''||input1.value===''||input2.value===''||input3.value===''||input4.value===''||input5.value===''){
                 ElMessage.error('Please fill in the information completely!')
             }
             else{
+                let value5 = 1;
+                if(input5.value==='book'){
+                    value5 = 1
+                }
+                else if(input5.value==='clothes'){
+                    value5 = 2
+                }
+                else if(input5.value==='device'){
+                    value5 = 3
+                }
                 const params = {
                     goodName:input1.value,
                     discription:input2.value,
                     price:input3.value,
                     originPrice:input4.value,
-                    classification:input5.value,
+                    classification:value5,
                     stock:input6.value,
                     newness:input7.value,
                     picutre:input.value,
@@ -149,15 +126,18 @@ export default {
                 console.log(params)
                 const { data } = await upShelfProduct(params)
                 if(data.code===200){
-                    state.next=true
+                    ElMessage.success('Your product is now on sale!')
+                    setTimeout(()=>{
+                        router.push({
+                            path:'/'
+                        })
+                    },3000)
                 }
             }
         }
         return {
             ...toRefs(state),
             onPublish,
-            onClassify,
-            onUpshelf,
             input,
             input1,
             input2,

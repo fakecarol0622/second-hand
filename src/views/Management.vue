@@ -57,7 +57,7 @@
             <el-descriptions-item label="Product ID">{{ order.goodId }}</el-descriptions-item>
             <el-descriptions-item label="Product Name">{{ order.goodName }}</el-descriptions-item>
             <el-descriptions-item label="Price">{{ order.price }}</el-descriptions-item>
-            <el-descriptions-item label="Date">{{ order.date }}</el-descriptions-item>
+            <el-descriptions-item label="Date">{{ convertTimeStamp(order.date) }}</el-descriptions-item>
         </el-descriptions>
     </div>
 </div>
@@ -67,7 +67,7 @@
 import { toRefs, reactive, ref } from 'vue'
 import { getAccountByName, getOrderById, blockAccount, unblockAccount, changeOrderStatus } from '../api/api'
 import { ElMessage } from 'element-plus'
-import { convertAccountStatus, convertOrderStatus } from '../utils/utils'
+import { convertAccountStatus, convertOrderStatus, convertTimeStamp } from '../utils/utils'
 
 export default {
     setup() {
@@ -194,6 +194,7 @@ export default {
             onSubmitId,
             convertAccountStatus,
             convertOrderStatus,
+            convertTimeStamp,
             onBlock,
             onUnblock,
             onChangeStatus,

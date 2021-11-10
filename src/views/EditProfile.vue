@@ -62,6 +62,7 @@ export default {
             }
             const { data } = await editAccountInfo(params)
             if(data.code===200){
+                localStorage.setItem("UserName",input1.value)
                 ElMessage({
                     message: 'Submitted successfully!',
                     type: 'success',

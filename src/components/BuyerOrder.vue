@@ -16,14 +16,14 @@
             <el-descriptions-item label="Good ID">{{ item.goodId }}</el-descriptions-item>
             <el-descriptions-item label="Good Name">{{ item.goodName }}</el-descriptions-item>
             <el-descriptions-item label="Price">{{ item.price }}</el-descriptions-item>
-            <el-descriptions-item label="Date">{{ item.date }}</el-descriptions-item>
+            <el-descriptions-item label="Date">{{ convertTimeStamp(item.date) }}</el-descriptions-item>
             <el-descriptions-item label="Status"><el-tag>{{ convertOrderStatus(item.orderCondition) }}</el-tag></el-descriptions-item>
         </el-descriptions>
     </div>
 </template>
 
 <script>
-import { convertOrderStatus } from '../utils/utils'
+import { convertOrderStatus, convertTimeStamp } from '../utils/utils'
 import { receiveOrder, cancelOrder } from '../api/api'
 import { ElMessage } from 'element-plus'
 
@@ -55,6 +55,7 @@ export default {
         }
         return {
             convertOrderStatus,
+            convertTimeStamp,
             onReceive,
             onCancel,
         }

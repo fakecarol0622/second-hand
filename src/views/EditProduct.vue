@@ -44,6 +44,7 @@ import SecondaryHeader from "../components/SecondaryHeader.vue"
 import { ElMessage } from 'element-plus'
 import { editProduct } from '../api/api'
 import { useRouter, useRoute } from 'vue-router'
+import { convertClassification } from '../utils/utils'
 
 export default {
     setup() {
@@ -52,7 +53,7 @@ export default {
         const input2 = ref('')
         const input3 = ref('')
         const input4 = ref('')
-        const input5 = ref(0)
+        const input5 = ref('')
         const input6 = ref(1)
         const input7 = ref(100)
         const router = useRouter()
@@ -64,7 +65,8 @@ export default {
             state.item.description = route.params.description
             state.item.price = route.params.price
             state.item.originPrice = route.params.originPrice
-            state.item.classification = route.params.classification
+            state.item.classification = convertClassification(route.params.classification)
+            console.log("classification:",state.item.classification)
             state.item.stock = route.params.stock
             state.item.newness = route.params.newness
             state.userId = localStorage.getItem("UserId")
@@ -78,16 +80,16 @@ export default {
             imageUrl:'',
             options: [
                 {
-                    value:1,
-                    label:'Book'
+                    value:'book',
+                    label:'book'
                 },
                 {
-                    value:2,
-                    label:'Clothes'
+                    value:'clothes',
+                    label:'clothes'
                 },
                 {
-                    value:3,
-                    label:'Device'
+                    value:'device',
+                    label:'device'
                 },
             ],
             item:{},
@@ -109,6 +111,16 @@ export default {
                 ElMessage.error('Please fill in the information completely!')
             }
             else{
+                let value5 = 1;
+                if(input5.value==='book'){
+                    value5 = 1
+                }
+                else if(input5.value==='clothes'){
+                    value5 = 2
+                }
+                else if(input5.value==='device'){
+                    value5 = 3
+                }
                 const params = {
                     goodId:state.item.goodId,
                     picutre:input.value,
@@ -116,7 +128,7 @@ export default {
                     discription:input2.value,
                     price:input3.value,
                     originPrice:input4.value,
-                    classification:input5.value,
+                    classification:value5,
                     stock:input6.value,
                     newness:input7.value,
                     sellerId:state.userId,
